@@ -1,10 +1,15 @@
+using Microsoft.EntityFrameworkCore;
 using P2_AP1_JamesDePena.Components;
+using P2_AP1_JamesDePena.DAL;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+var connectionString = builder.Configuration.GetConnectionString("ConStr");
+builder.Services.AddDbContextFactory<Contexto>(options => options.UseSqlite(connectionString));
 
 var app = builder.Build();
 
