@@ -1,0 +1,30 @@
+﻿@page "/Registro/Index"
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header">
+
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-4">
+                    <label class="col-form-label"><strong>Desde:</strong></label>
+                    <InputDate class="form-control" @bind-Value="fechaFiltroInicio"></InputDate>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="col-form-label"><strong>Hasta:</strong></label>
+                    <InputDate class="form-control" @bind-Value="fechaFiltroFin"></InputDate>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    private DateTime fechaFiltroInicio = DateTime.Now;
+    private DateTime fechaFiltroFin = DateTime.Now;
+
+}
