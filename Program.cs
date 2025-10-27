@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using P2_AP1_JamesDePena.Components;
 using P2_AP1_JamesDePena.DAL;
+using P2_AP1_JamesDePena.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Services.AddRazorComponents()
 
 var connectionString = builder.Configuration.GetConnectionString("ConStr");
 builder.Services.AddDbContextFactory<Contexto>(options => options.UseSqlite(connectionString));
+
+builder.Services.AddScoped<Registro>();
 
 var app = builder.Build();
 
