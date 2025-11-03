@@ -9,4 +9,5 @@ public class Pedidos
     public DateTime Fecha { get; set; }
     public string NombreCliente { get; set; } = string.Empty;
     public decimal Total { get; set; }
+    public ICollection<PedidosDetalle> PedidosDetalles { get; set; } = new List<PedidosDetalle>();
 }
