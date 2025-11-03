@@ -5,7 +5,39 @@ namespace P2_AP1_JamesDePena.DAL;
 
 public class Contexto : DbContext
 {
-    public DbSet<Registro> Registro { get; set; }
+    public DbSet<Pedidos> Pedidos { get; set; }
+    public DbSet<PedidosDetalle> PedidosDetalles { get; set; }
+    public DbSet<Componente> Componentes { get; set; }
 
     public Contexto(DbContextOptions<Contexto> options) : base(options) { }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Componente>(entity =>
+        {
+            entity.HasData(
+                new Componente
+                {
+                    ComponenteId = 1,
+                    Descripcion = "Memoria 4GB",
+                    Precio = 1580,
+                    Existencia = 1
+                },
+                new Componente
+                {
+                    ComponenteId = 2,
+                    Descripcion = "Disco SSD 120MB",
+                    Precio = 4200,
+                    Existencia = 8
+                },
+                new Componente
+                {
+                    ComponenteId = 3,
+                    Descripcion = "Tarjeta de Video",
+                    Precio = 10000
+                }
+                );
+        });
+    }
 }
