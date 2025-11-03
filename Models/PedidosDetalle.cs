@@ -9,5 +9,5 @@ public class PedidosDetalle
     public int PedidoId { get; set; }
     public int ComponenteId { get; set; }
     public int Cantidad { get; set; }
-    public double Precio { get; set; }
+    public decimal Precio { get; set; }
 }
