@@ -50,10 +50,11 @@ public class PedidosServices(IDbContextFactory<Contexto> DbFactory)
         }
 
         await AfectarProductos(anterior.PedidosDetalles.ToArray(), TipoOperacion.Resta);
-        await AfectarProductos(anterior.PedidosDetalles.ToArray(), TipoOperacion.Suma);
 
         contexto.PedidosDetalles.RemoveRange(anterior.PedidosDetalles);
         anterior.PedidosDetalles = pedido.PedidosDetalles;
+
+        await AfectarProductos(anterior.PedidosDetalles.ToArray(), TipoOperacion.Suma);
         anterior.Fecha = pedido.Fecha;
         anterior.NombreCliente = pedido.NombreCliente;
         anterior.Total = pedido.Total;
@@ -76,7 +77,7 @@ public class PedidosServices(IDbContextFactory<Contexto> DbFactory)
     public async Task<bool> Eliminar(int pedidoId)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
-        var pedidoExistente = await contexto.Pedidos.Include(p => p.PedidoId).FirstOrDefaultAsync(p => p.PedidoId == pedidoId);
+        var pedidoExistente = await contexto.Pedidos.Include(p => p.PedidosDetalles).FirstOrDefaultAsync(p => p.PedidoId == pedidoId);
 
         if (pedidoExistente == null)
         {
