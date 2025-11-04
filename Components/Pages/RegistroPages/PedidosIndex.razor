@@ -39,7 +39,6 @@
                         <option value="" selected> --- Seleccione una opción ---</option>
                         <option value="PedidoId">ID</option>
                         <option value="NombreCliente">Nombre</option>
-                        <option value="Total">Monto Total</option>
                     </InputSelect>
                 </div>
 
@@ -167,17 +166,6 @@
                     pedidos = await pedidosServices.Listar(p => p.NombreCliente.ToLower().Contains(valorFiltro.ToLower()));
                 }
             }
-            else if (filtro == "Total" && decimal.TryParse(valorFiltro, out decimal total))
-            {
-                if (fechaFiltroInicio.HasValue && fechaFiltroFin.HasValue)
-                {
-                    pedidos = await pedidosServices.Listar(p => p.Total == total && p.Fecha.Date >= fechaFiltroInicio.Value && p.Fecha.Date <= fechaFiltroFin.Value);
-                }
-                else
-                {
-                    pedidos = await pedidosServices.Listar(p => p.Total == total);
-                }
-            }
         }
         else
         {
@@ -190,7 +178,6 @@
                 pedidos = await pedidosServices.Listar(p => p.PedidoId > 0);
             }
         }
-
     }
 
     private async Task Restablecer()
