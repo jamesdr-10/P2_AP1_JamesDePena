@@ -1,0 +1,192 @@
+﻿@page "/Pedidos/Index"
+
+@inject PedidosServices pedidosServices
+@rendermode InteractiveServer
+
+<PageTitle>Consulta de Pedidos</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-12 col-md-10 text-center">
+                    <h5>Consulta de Pedidos</h5>
+                </div>
+
+                <div class="col-12 col-md-2 d-flex justify-content-center justify-content-md-end">
+                    <a href="/Pedidos/Form/0" class="btn btn-primary bi bi-plus-square"> Crear</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12 col-md-4">
+                    <label class="col-form-label fw-bold">Desde:</label>
+                    <InputDate class="form-control" @bind-Value="fechaFiltroInicio"></InputDate>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="col-form-label fw-bold">Hasta:</label>
+                    <InputDate class="form-control" @bind-Value="fechaFiltroFin"></InputDate>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-md-4">
+                    <label class="col-form-label fw-bold">Filtrar por</label>
+                    <InputSelect class="form-select" @bind-Value="filtro">
+                        <option value="" selected> --- Seleccione una opción ---</option>
+                        <option value="PedidoId">ID</option>
+                        <option value="NombreCliente">Nombre</option>
+                    </InputSelect>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="col-form-label fw-bold">Búsqueda</label>
+                    <div class="input-group">
+                        <InputText class="form-control" @bind-Value="valorFiltro" placeholder="Buscar"></InputText>
+                        <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                        <button type="button" class="btn btn-outline-secondary bi bi-arrow-clockwise" @onclick="Restablecer"></button>
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMensaje))
+            {
+                <div class="alert alert-danger mt-3">@errorMensaje</div>
+            }
+
+            <div class="table-responsive mt-3">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr class="text-center fw-bold">
+                            <td>ID</td>
+                            <td>Fecha</td>
+                            <td>Nombre</td>
+                            <td>Monto Total</td>
+                            <td>Editar</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (pedidos.Count == 0)
+                        {
+                            <tr class="text-center">
+                                <th colspan="5">No hay pedidos.</th>
+                            </tr>
+                        } else
+                        {
+                            @foreach (var pedido in pedidos)
+                            {
+                                <tr class="text-center">
+                                    <td>@pedido.PedidoId</td>
+                                    <td>@pedido.Fecha.ToString("dd/MM/yyyy")</td>
+                                    <td>@pedido.NombreCliente</td>
+                                    <td>@pedido.Total</td>
+                                    <td>
+                                        <a href="/Pedidos/Form/@pedido.PedidoId" class="btn btn-outline-primary bi bi-pencil"></a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-between">
+            <label>Conteo: @pedidos.Count()</label>
+            <label>Total: @pedidos.Sum(p => p.Total)</label>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    private List<Pedidos> pedidos { get; set; } = new List<Pedidos>();
+
+    private string filtro = string.Empty;
+    private string valorFiltro = string.Empty;
+    private DateTime? fechaFiltroInicio;
+    private DateTime? fechaFiltroFin;
+
+    private string? errorMensaje;
+
+    protected override async Task OnInitializedAsync()
+    {
+        pedidos = await pedidosServices.Listar(p => p.PedidoId > 0);
+    }
+
+    private async Task Buscar()
+    {
+        errorMensaje = null;
+
+        if (fechaFiltroInicio.HasValue && !fechaFiltroFin.HasValue || !fechaFiltroInicio.HasValue && fechaFiltroFin.HasValue)
+        {
+            errorMensaje = "Debe elegir los dos rangos de fecha.";
+            return;
+        }
+
+        if (fechaFiltroInicio.HasValue && fechaFiltroFin.HasValue)
+        {
+            if (fechaFiltroInicio.Value.Date > fechaFiltroFin.Value.Date)
+            {
+                errorMensaje = "Rango incorrecto de fecha.";
+                return;
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(valorFiltro))
+        {
+            if (string.IsNullOrWhiteSpace(filtro))
+            {
+                errorMensaje = "Debe seleccionar un filtro para la búsqueda.";
+                return;
+            }
+
+            if (filtro == "PedidoId" && int.TryParse(valorFiltro, out int pedidoId))
+            {
+                if (fechaFiltroInicio.HasValue && fechaFiltroFin.HasValue)
+                {
+                    pedidos = await pedidosServices.Listar(p => p.PedidoId == pedidoId && p.Fecha.Date >= fechaFiltroInicio.Value && p.Fecha.Date <= fechaFiltroFin.Value);
+                }
+                else
+                {
+                    pedidos = await pedidosServices.Listar(p => p.PedidoId == pedidoId);
+                }
+            }
+            else if (filtro == "NombreCliente")
+            {
+                if (fechaFiltroInicio.HasValue && fechaFiltroFin.HasValue)
+                {
+                    pedidos = await pedidosServices.Listar(p => p.NombreCliente.ToLower().Contains(valorFiltro.ToLower()) && p.Fecha.Date >= fechaFiltroInicio.Value && p.Fecha.Date <= fechaFiltroFin.Value);
+                }
+                else
+                {
+                    pedidos = await pedidosServices.Listar(p => p.NombreCliente.ToLower().Contains(valorFiltro.ToLower()));
+                }
+            }
+        }
+        else
+        {
+            if (fechaFiltroInicio.HasValue && fechaFiltroFin.HasValue)
+            {
+                pedidos = await pedidosServices.Listar(p => p.PedidoId > 0 && p.Fecha.Date >= fechaFiltroInicio.Value && p.Fecha.Date <= fechaFiltroFin.Value);
+            }
+            else
+            {
+                pedidos = await pedidosServices.Listar(p => p.PedidoId > 0);
+            }
+        }
+    }
+
+    private async Task Restablecer()
+    {
+        errorMensaje = null;
+        filtro = string.Empty;
+        valorFiltro = string.Empty;
+        fechaFiltroInicio = null;
+        fechaFiltroFin = null;
+        pedidos = await pedidosServices.Listar(p => p.PedidoId > 0);
+    }
+}

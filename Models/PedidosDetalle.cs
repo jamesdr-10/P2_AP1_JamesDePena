@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace P2_AP1_JamesDePena.Models;
 
@@ -9,5 +10,11 @@ public class PedidosDetalle
     public int PedidoId { get; set; }
     public int ComponenteId { get; set; }
     public int Cantidad { get; set; }
-    public double Precio { get; set; }
+    public decimal Precio { get; set; }
+
+    [ForeignKey(nameof(PedidoId))]
+    public Pedidos Pedido { get; set; }
+
+    [ForeignKey(nameof(ComponenteId))]
+    public Componente Componente { get; set; }
 }
